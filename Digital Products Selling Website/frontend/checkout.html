@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Checkout — Digital Hub</title><link rel="stylesheet" href="css/style.css"></head>
+<body>
+  <header class="container nav"><div class="brand">Digital Hub</div></header>
+  <main class="container">
+    <h1>Checkout</h1>
+    <form id="checkoutForm" class="card p-3">
+      <div class="mb-3"><label class="form-label">Full name</label><input name="name" class="form-control" required></div>
+      <div class="mb-3"><label class="form-label">Email</label><input name="email" type="email" class="form-control" required></div>
+      <h3 class="h6">Payment</h3>
+      <div class="muted mb-3">This demo will create an order and redirect to a payment flow.</div>
+      <div><button class="btn btn-primary" type="submit">Place Order</button></div>
+    </form>
+    <div id="checkoutMsg" class="mt-3"></div>
+  </main>
+  <script>
+    document.getElementById('checkoutForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const msg = document.getElementById('checkoutMsg'); msg.innerHTML='Creating order...';
+      // create order from session cart
+      const res = await fetch('../backend/endpoints/checkout.php',{method:'POST'}).then(r=>r.json());
+      if(!res.order_id){ msg.innerHTML = '<div class="alert alert-danger">Checkout failed</div>'; return; }
+      msg.innerHTML = 'Redirecting to payment...';
+      // request stripe create checkout (or mock)
+      const pay = await fetch('../backend/endpoints/stripe_create_checkout.php?order_id='+res.order_id).then(r=>r.json());
+      if (pay.payment_url) location.href = pay.payment_url; else msg.innerHTML = '<div class="alert alert-danger">Payment initiation failed</div>';
+    });
+  </script>
+</body></html>

@@ -1,0 +1,401 @@
+:root{
+    --bg:#0f1724;
+    --card:#0b1220;
+    --muted:#94a3b8;
+    --accent1:#7c3aed;
+    --accent2:#06b6d4;
+    --glass:rgba(255,255,255,0.04);
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    text-decoration:none;
+}
+
+html,
+body{
+    height:100%;
+    font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;
+    color:#e6eef8;
+    background:linear-gradient(180deg,var(--bg),#071027);
+    line-height:1.6;
+}
+
+img{
+    max-width:100%;
+    display:block;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.container{
+    max-width:1100px;
+    margin:0 auto;
+    padding:18px;
+}
+
+.nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 0;
+}
+
+.brand{
+    font-size:24px;
+    font-weight:700;
+    background:linear-gradient(
+        90deg,
+        var(--accent1),
+        var(--accent2)
+    );
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+/* =========================
+   HERO SECTION
+========================= */
+
+.hero{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    padding:28px;
+    border-radius:12px;
+    background:linear-gradient(
+        135deg,
+        rgba(124,58,237,.12),
+        rgba(6,182,212,.06)
+    );
+    border:1px solid rgba(255,255,255,.05);
+    margin-bottom:25px;
+}
+
+.hero h1{
+    font-size:24px;
+    margin-bottom:10px;
+}
+
+.hero p{
+    color:var(--muted);
+}
+
+.cta{
+    display:inline-block;
+    background:linear-gradient(
+        90deg,
+        var(--accent1),
+        var(--accent2)
+    );
+    color:#fff;
+    padding:12px 18px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    transition:.3s;
+}
+
+.cta:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(124,58,237,.25);
+}
+
+/* =========================
+   PRODUCT GRID
+========================= */
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+}
+
+.card{
+    background:var(--card);
+    padding:15px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.05);
+    transition:.3s;
+    overflow:hidden;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 10px 25px rgba(124,58,237,.2);
+}
+
+.card h3{
+    margin:12px 0 8px;
+}
+
+.card p{
+    color:var(--muted);
+    font-size:14px;
+}
+
+.price{
+    color:var(--accent2);
+    font-weight:700;
+    font-size:18px;
+    margin-top:10px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+button{
+    font-family:inherit;
+    border:none;
+    outline:none;
+    cursor:pointer;
+}
+
+.btn{
+    display:inline-block;
+    padding:12px 18px;
+    border-radius:10px;
+    background:linear-gradient(
+        90deg,
+        var(--accent1),
+        var(--accent2)
+    );
+    color:#fff;
+    transition:.3s;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+}
+
+/* =========================
+   FORMS
+========================= */
+
+.form-container{
+    background:var(--card);
+    padding:25px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.05);
+    margin-top:20px;
+}
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+    margin-bottom:18px;
+}
+
+.form-group label{
+    margin-bottom:8px;
+    font-weight:600;
+    font-size:14px;
+}
+
+.form-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:14px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:10px;
+    color:#fff;
+    font-size:15px;
+    outline:none;
+    transition:.3s;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+    border-color:var(--accent2);
+    box-shadow:0 0 0 3px rgba(6,182,212,.15);
+}
+
+textarea{
+    min-height:120px;
+    resize:vertical;
+}
+
+input::placeholder,
+textarea::placeholder{
+    color:var(--muted);
+}
+
+/* File Upload */
+
+input[type="file"]{
+    padding:12px;
+    cursor:pointer;
+}
+
+input[type="file"]::-webkit-file-upload-button{
+    background:linear-gradient(
+        90deg,
+        var(--accent1),
+        var(--accent2)
+    );
+    color:#fff;
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-right:10px;
+}
+
+/* Submit Button */
+
+.submit-btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(
+        90deg,
+        var(--accent1),
+        var(--accent2)
+    );
+    color:#fff;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.submit-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 25px rgba(124,58,237,.25);
+}
+
+/* =========================
+   TABLES
+========================= */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:var(--card);
+    border-radius:12px;
+    overflow:hidden;
+}
+
+th,
+td{
+    padding:14px;
+    text-align:left;
+    border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+th{
+    background:rgba(255,255,255,.04);
+}
+
+/* =========================
+   UTILITIES
+========================= */
+
+.row{
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.muted{
+    color:var(--muted);
+}
+
+.text-center{
+    text-align:center;
+}
+
+.mt-1{
+    margin-top:10px;
+}
+
+.mt-2{
+    margin-top:20px;
+}
+
+.mt-3{
+    margin-top:30px;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+.fade-in{
+    animation:fadeIn .6s ease both;
+}
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(8px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (min-width:768px){
+
+    .hero{
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+    }
+
+    .grid{
+        grid-template-columns:repeat(3,1fr);
+    }
+}
+
+@media (min-width:1024px){
+
+    .grid{
+        grid-template-columns:repeat(4,1fr);
+    }
+
+    .hero h1{
+        font-size:32px;
+    }
+}
+
+@media (max-width:768px){
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-row{
+        grid-template-columns:1fr;
+    }
+
+    .hero{
+        padding:20px;
+    }
+
+    .hero h1{
+        font-size:22px;
+    }
+}

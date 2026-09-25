@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Downloads — Digital Hub</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<body class="bg-light">
+  <div class="container py-4">
+    <h1 class="h4">Download History</h1>
+    <div id="ordersArea"></div>
+  </div>
+  <script>
+    async function load(){
+      const res = await fetch('/backend/endpoints/orders_list.php');
+      if(!res.ok){ document.getElementById('ordersArea').innerHTML = '<div class="alert alert-danger">Please sign in to view orders.</div>'; return; }
+      const json = await res.json();
+      const area = document.getElementById('ordersArea');
+      if(!json.orders.length){ area.innerHTML = '<div class="alert alert-secondary">No orders found</div>'; return; }
+      let html = '';
+      for(const o of json.orders){ html += `<div class="card mb-3"><div class="card-body"><h5>Order #${o.id} <small class="text-muted">${o.created_at}</small></h5><div><a href="/frontend/order_detail.html?order_id=${o.id}" class="btn btn-sm btn-outline-primary">View</a></div></div></div>`; }
+      area.innerHTML = html;
+    }
+    load();
+  </script>
+</body></html>

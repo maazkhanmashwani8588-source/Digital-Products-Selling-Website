@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Support — Digital Hub</title><link rel="stylesheet" href="/frontend/css/style.css"></head>
+<body>
+  <main class="container">
+    <h1>Support</h1>
+    <section class="card">
+      <h3>Contact Support</h3>
+      <form id="ticketForm">
+        <label>Subject<input name="subject"></label>
+        <label>Message<textarea name="message"></textarea></label>
+        <div class="row"><button class="cta" type="submit">Send</button></div>
+      </form>
+    </section>
+  </main>
+  <script>
+    document.getElementById('ticketForm').addEventListener('submit', e=>{ e.preventDefault(); alert('Ticket submitted (demo)') })
+  </script>
+</body></html>

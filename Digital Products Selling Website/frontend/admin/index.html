@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Digital Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.css">
+    <style>
+        body {
+            background-color: #f5f6f8;
+        }
+        .sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            padding: 20px 0;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .sidebar-title {
+            color: white;
+            padding: 20px;
+            font-weight: bold;
+            font-size: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        .sidebar-menu a {
+            display: block;
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border-left-color: #ffd700;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .stat-card .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-card .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .table-responsive {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .btn-sm-action {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            max-height: 400px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                min-height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            .sidebar-menu {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            .sidebar-menu a {
+                border: none;
+                flex: 1 1 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-title">
+            <i class="bi bi-speedometer2"></i> Digital Hub Admin
+        </div>
+        <div class="sidebar-menu">
+            <a href="#dashboard" class="nav-link active" onclick="loadSection('dashboard')">
+                <i class="bi bi-house-door"></i> Dashboard
+            </a>
+            <a href="#products" class="nav-link" onclick="loadSection('products')">
+                <i class="bi bi-box"></i> Products
+            </a>
+            <a href="#orders" class="nav-link" onclick="loadSection('orders')">
+                <i class="bi bi-bag-check"></i> Orders
+            </a>
+            <a href="#customers" class="nav-link" onclick="loadSection('customers')">
+                <i class="bi bi-people"></i> Customers
+            </a>
+            <a href="#coupons" class="nav-link" onclick="loadSection('coupons')">
+                <i class="bi bi-ticket-perforated"></i> Coupons
+            </a>
+            <a href="#analytics" class="nav-link" onclick="loadSection('analytics')">
+                <i class="bi bi-bar-chart"></i> Analytics
+            </a>
+            <hr style="border-color: rgba(255,255,255,0.2); margin: 10px 0;">
+            <a href="/backend/endpoints/logout.php" class="nav-link" style="color: #ff6b6b;">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 id="page-title">Dashboard</h1>
+            <div id="user-info" class="text-muted"></div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="content-section">
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Revenue (30d)</div>
+                        <div class="stat-value" id="stat-revenue">$0</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Orders (30d)</div>
+                        <div class="stat-value" id="stat-orders">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-label">New Users</div>
+                        <div class="stat-value" id="stat-users">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Products</div>
+                        <div class="stat-value" id="stat-products">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Revenue Trend</h5>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <h5 class="mb-3">Top 5 Products</h5>
+                        <div id="top-products-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <h5 style="padding: 20px 20px 0 20px;">Recent Orders</h5>
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-orders-list">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <div id="products-section" class="content-section" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Products</h2>
+                <button class="btn btn-primary" onclick="showProductForm()">
+                    <i class="bi bi-plus"></i> Add Product
+                </button>
+            </div>
+
+            <div class="input-group mb-4">
+                <input type="text" id="product-search" class="form-control" placeholder="Search products...">
+                <button class="btn btn-outline-secondary" onclick="searchProducts()">Search</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Sales</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-list">
+                    </tbody>
+                </table>
+            </div>
+
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center" id="products-pagination"></ul>
+            </nav>
+
+            <!-- Product Form Modal -->
+            <div class="modal fade" id="productModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Product Form</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="productForm">
+                                <input type="hidden" id="product-id">
+                                <div class="mb-3">
+                                    <label class="form-label">Product Name</label>
+                                    <input type="text" id="product-title" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Price</label>
+                                    <input type="number" id="product-price" class="form-control" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea id="product-description" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select id="product-status" class="form-select">
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="saveProduct()">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="orders-section" class="content-section" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Orders</h2>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <select id="order-status-filter" class="form-select" onchange="loadOrders()">
+                        <option value="">All Orders</option>
+                        <option value="paid">Paid</option>
+                        <option value="pending">Pending</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                </div>
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input type="text" id="order-search" class="form-control" placeholder="Search orders...">
+                        <button class="btn btn-outline-secondary" onclick="loadOrders()">Search</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-list">
+                    </tbody>
+                </table>
+            </div>
+
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center" id="orders-pagination"></ul>
+            </nav>
+        </div>
+
+        <!-- Customers Section -->
+        <div id="customers-section" class="content-section" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Customers</h2>
+            </div>
+
+            <div class="input-group mb-4">
+                <input type="text" id="customer-search" class="form-control" placeholder="Search customers...">
+                <button class="btn btn-outline-secondary" onclick="loadCustomers()">Search</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Orders</th>
+                            <th>Total Spent</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customers-list">
+                    </tbody>
+                </table>
+            </div>
+
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center" id="customers-pagination"></ul>
+            </nav>
+        </div>
+
+        <!-- Coupons Section -->
+        <div id="coupons-section" class="content-section" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Coupons</h2>
+                <button class="btn btn-primary" onclick="showCouponForm()">
+                    <i class="bi bi-plus"></i> Add Coupon
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Code</th>
+                            <th>Type</th>
+                            <th>Value</th>
+                            <th>Expires</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="coupons-list">
+                    </tbody>
+                </table>
+            </div>
+
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center" id="coupons-pagination"></ul>
+            </nav>
+
+            <!-- Coupon Form Modal -->
+            <div class="modal fade" id="couponModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Coupon Form</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="couponForm">
+                                <input type="hidden" id="coupon-id">
+                                <div class="mb-3">
+                                    <label class="form-label">Coupon Code</label>
+                                    <input type="text" id="coupon-code" class="form-control" placeholder="e.g., SAVE20" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Type</label>
+                                    <select id="coupon-type" class="form-select">
+                                        <option value="percent">Percentage</option>
+                                        <option value="fixed">Fixed Amount</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Value</label>
+                                    <input type="number" id="coupon-value" class="form-control" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Expires At</label>
+                                    <input type="datetime-local" id="coupon-expires" class="form-control">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="saveCoupon()">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analytics-section" class="content-section" style="display: none;">
+            <h2 class="mb-4">Analytics</h2>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Sales Trend (30 days)</h5>
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Top Products</h5>
+                        <canvas id="productsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <h5 style="padding: 20px 20px 0 20px;">Sales by Category</h5>
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Orders</th>
+                                    <th>Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody id="category-breakdown-list">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+    <script>
+        // Check admin auth
+        if (!sessionStorage.getItem('admin_logged_in')) {
+            window.location.href = '/frontend/auth/login.html';
+        }
+
+        let currentPage = 1;
+        let productModal, couponModal;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            productModal = new bootstrap.Modal(document.getElementById('productModal'));
+            couponModal = new bootstrap.Modal(document.getElementById('couponModal'));
+            
+            await loadDashboard();
+        });
+
+        function loadSection(section) {
+            document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(section + '-section').style.display = 'block';
+            event.target.closest('.nav-link').classList.add('active');
+
+            const titles = {
+                dashboard: 'Dashboard',
+                products: 'Products Management',
+                orders: 'Orders Management',
+                customers: 'Customers',
+                coupons: 'Coupons',
+                analytics: 'Analytics'
+            };
+            document.getElementById('page-title').textContent = titles[section];
+
+            if (section === 'dashboard') loadDashboard();
+            else if (section === 'products') loadProducts();
+            else if (section === 'orders') loadOrders();
+            else if (section === 'customers') loadCustomers();
+            else if (section === 'coupons') loadCoupons();
+            else if (section === 'analytics') loadAnalytics();
+        }
+
+       async function loadDashboard() {
+    try {
+        const response = await fetch('../../backend/endpoints/admin/dashboard_stats.php');
+        const data = await response.json();
+
+        console.log("Dashboard API:", data);
+
+        if (!data || !data.success) {
+            throw new Error(data?.error || 'Invalid dashboard response');
+        }
+
+        const revenue = data.revenue || {};
+        const users = data.users || {};
+        const products = data.products || {};
+
+        const totalRevenue = Number(revenue.total || 0);
+        const ordersCount = Number(revenue.orders_count || 0);
+        const newUsers = Number(users.new_last_30 || 0);
+        const totalProducts = Number(products.total || 0);
+
+        document.getElementById('stat-revenue').textContent =
+            '$' + totalRevenue.toFixed(2);
+
+        document.getElementById('stat-orders').textContent = ordersCount;
+        document.getElementById('stat-users').textContent = newUsers;
+        document.getElementById('stat-products').textContent = totalProducts;
+
+        // Top products (safe)
+        let html = '';
+        (products.top_5 || []).forEach(p => {
+            const revenue = Number(p.revenue || 0);
+            const sales = Number(p.sales_count || 0);
+
+            html += `
+                <div class="mb-2">
+                    <strong>${p.title || 'Unknown'}</strong><br>
+                    <small class="text-muted">
+                        ${sales} sales - $${revenue.toFixed(2)}
+                    </small>
+                </div>
+            `;
+        });
+        document.getElementById('top-products-list').innerHTML = html;
+
+        // Recent orders (safe)
+        html = '';
+        (data.recent_orders || []).forEach(o => {
+            const total = Number(o.total || 0);
+
+            const badge = `<span class="badge bg-${
+                o.status === 'paid' ? 'success' : 'warning'
+            }">${o.status}</span>`;
+
+            html += `
+                <tr>
+                    <td>#${o.id}</td>
+                    <td>${o.name || 'Guest'}</td>
+                    <td>$${total.toFixed(2)}</td>
+                    <td>${badge}</td>
+                    <td>${new Date(o.created_at).toLocaleDateString()}</td>
+                </tr>
+            `;
+        });
+        document.getElementById('recent-orders-list').innerHTML = html;
+
+        // chart safe destroy
+        if (window.revenueChart && typeof window.revenueChart.destroy === 'function') {
+            window.revenueChart.destroy();
+        }
+
+        const dates = (revenue.by_date || []).map(r => r.date);
+        const revenues = (revenue.by_date || []).map(r => Number(r.revenue || 0));
+
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+
+        window.revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Revenue',
+                    data: revenues,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+    } catch (error) {
+        console.error('Dashboard error:', error);
+        alert('Dashboard failed to load (check API response)');
+    }
+}
+
+        async function loadProducts(page = 1) {
+            try {
+                const search = document.getElementById('product-search')?.value || '';
+                const response = await fetch(`../../backend/endpoints/admin/products_crud.php?page=${page}&search=${encodeURIComponent(search)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = '';
+                    data.products.forEach(p => {
+                        const badge = `<span class="badge bg-${p.status === 'active' ? 'success' : 'secondary'}">${p.status}</span>`;
+                        html += `<tr>
+                            <td>${p.title}</td>
+                            <td>$${p.price}</td>
+                            <td>${p.category_name || '-'}</td>
+                            <td>${p.sales_count}</td>
+                            <td>${badge}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info btn-sm-action" onclick="editProduct(${p.id})"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-danger btn-sm-action" onclick="deleteProduct(${p.id})"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                    document.getElementById('products-list').innerHTML = html;
+
+                    // Pagination
+                    const pages = Math.ceil(data.total / data.per_page);
+                    let paginationHtml = '';
+                    for (let i = 1; i <= pages; i++) {
+                        paginationHtml += `<li class="page-item ${i === page ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="loadProducts(${i}); return false;">${i}</a>
+                        </li>`;
+                    }
+                    document.getElementById('products-pagination').innerHTML = paginationHtml;
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        function showProductForm() {
+            document.getElementById('product-id').value = '';
+            document.getElementById('productForm').reset();
+            productModal.show();
+        }
+
+        async function saveProduct() {
+            const id = document.getElementById('product-id').value;
+            const payload = {
+                title: document.getElementById('product-title').value,
+                price: document.getElementById('product-price').value,
+                description: document.getElementById('product-description').value,
+                status: document.getElementById('product-status').value
+            };
+
+            try {
+                const response = await fetch(`../../backend/endpoints/admin/products_crud.php`, {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(id ? { ...payload, id } : payload)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    productModal.hide();
+                    loadProducts();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Failed to save product');
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Delete this product?')) return;
+            
+            try {
+                const response = await fetch(`../../backend/endpoints/admin/products_crud.php`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    loadProducts();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Failed to delete product');
+            }
+        }
+
+        async function loadOrders() {
+            try {
+                const page = currentPage || 1;
+                const status = document.getElementById('order-status-filter').value;
+                const search = document.getElementById('order-search').value;
+                
+                const response = await fetch(`../../backend/endpoints/admin/orders_list.php?page=${page}&status=${status}&search=${encodeURIComponent(search)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = '';
+                    data.orders.forEach(o => {
+                        const badge = `<span class="badge bg-${o.status === 'paid' ? 'success' : o.status === 'pending' ? 'warning' : 'danger'}">${o.status}</span>`;
+                        html += `<tr>
+                            <td><strong>#${o.id}</strong></td>
+                            <td>${o.name || 'Guest'}</td>
+                            <td>${o.item_count}</td>
+                            <td>$${o.total}</td>
+                            <td>${badge}</td>
+                            <td>${new Date(o.created_at).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info btn-sm-action" onclick="viewOrderDetail(${o.id})"><i class="bi bi-eye"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                    document.getElementById('orders-list').innerHTML = html;
+
+                    // Pagination
+                    const pages = Math.ceil(data.total / data.per_page);
+                    let paginationHtml = '';
+                    for (let i = 1; i <= pages; i++) {
+                        paginationHtml += `<li class="page-item ${i === page ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="currentPage = ${i}; loadOrders(); return false;">${i}</a>
+                        </li>`;
+                    }
+                    document.getElementById('orders-pagination').innerHTML = paginationHtml;
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        async function viewOrderDetail(orderId) {
+            try {
+                const response = await fetch(`../../backend/endpoints/admin/order_detail.php?id=${orderId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let itemsHtml = '';
+                    data.items.forEach(item => {
+                        itemsHtml += `<div class="mb-2"><strong>${item.title}</strong> x${item.quantity} = $${(item.quantity * item.price).toFixed(2)}</div>`;
+                    });
+
+                    const status = data.order.status;
+                    let statusOptions = `<select id="new-status" class="form-select">
+                        <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="paid" ${status === 'paid' ? 'selected' : ''}>Paid</option>
+                        <option value="failed" ${status === 'failed' ? 'selected' : ''}>Failed</option>
+                    </select>`;
+
+                    const modal = new bootstrap.Modal(new bootstrap.Modal(document.createElement('div')));
+                    alert(`Order #${orderId}\n${data.order.name} (${data.order.email})\nTotal: $${data.order.total}\nStatus: ${status}\n\nItems:\n${itemsHtml}`);
+                }
+            } catch (error) {
+                alert('Failed to load order details');
+            }
+        }
+
+        async function loadCustomers(page = 1) {
+            try {
+                const search = document.getElementById('customer-search')?.value || '';
+                const response = await fetch(`../../backend/endpoints/admin/customers_list.php?page=${page}&search=${encodeURIComponent(search)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = '';
+                    data.customers.forEach(c => {
+                        html += `<tr>
+                            <td>${c.name}</td>
+                            <td>${c.email}</td>
+                            <td>${c.order_count}</td>
+                            <td>$${(c.total_spent || 0).toFixed(2)}</td>
+                            <td>${new Date(c.created_at).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info btn-sm-action" onclick="viewCustomerDetail(${c.id})"><i class="bi bi-eye"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                    document.getElementById('customers-list').innerHTML = html;
+
+                    // Pagination
+                    const pages = Math.ceil(data.total / data.per_page);
+                    let paginationHtml = '';
+                    for (let i = 1; i <= pages; i++) {
+                        paginationHtml += `<li class="page-item ${i === page ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="loadCustomers(${i}); return false;">${i}</a>
+                        </li>`;
+                    }
+                    document.getElementById('customers-pagination').innerHTML = paginationHtml;
+                }
+            } catch (error) {
+                console.error('Error loading customers:', error);
+            }
+        }
+
+        async function viewCustomerDetail(customerId) {
+            try {
+                const response = await fetch(`../../backend/endpoints/admin/customer_detail.php?id=${customerId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`Customer: ${data.customer.name}\nEmail: ${data.customer.email}\nOrders: ${data.orders.length}\nJoined: ${new Date(data.customer.created_at).toLocaleDateString()}`);
+                }
+            } catch (error) {
+                alert('Failed to load customer details');
+            }
+        }
+
+        async function loadCoupons(page = 1) {
+            try {
+                const response = await fetch(`../../backend/endpoints/admin/coupons_crud.php?page=${page}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = '';
+                    data.coupons.forEach(c => {
+                        const expires = c.expires_at ? new Date(c.expires_at).toLocaleDateString() : 'Never';
+                        html += `<tr>
+                            <td><strong>${c.code}</strong></td>
+                            <td>${c.type === 'percent' ? 'Percentage' : 'Fixed'}</td>
+                            <td>${c.type === 'percent' ? c.value + '%' : '$' + c.value}</td>
+                            <td>${expires}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info btn-sm-action" onclick="editCoupon(${c.id})"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-danger btn-sm-action" onclick="deleteCoupon(${c.id})"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                    document.getElementById('coupons-list').innerHTML = html;
+
+                    // Pagination
+                    const pages = Math.ceil(data.total / data.per_page);
+                    let paginationHtml = '';
+                    for (let i = 1; i <= pages; i++) {
+                        paginationHtml += `<li class="page-item ${i === page ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="loadCoupons(${i}); return false;">${i}</a>
+                        </li>`;
+                    }
+                    document.getElementById('coupons-pagination').innerHTML = paginationHtml;
+                }
+            } catch (error) {
+                console.error('Error loading coupons:', error);
+            }
+        }
+
+        function showCouponForm() {
+            document.getElementById('coupon-id').value = '';
+            document.getElementById('couponForm').reset();
+            couponModal.show();
+        }
+
+        async function saveCoupon() {
+            const id = document.getElementById('coupon-id').value;
+            const payload = {
+                code: document.getElementById('coupon-code').value,
+                type: document.getElementById('coupon-type').value,
+                value: document.getElementById('coupon-value').value,
+                expires_at: document.getElementById('coupon-expires').value || null
+            };
+
+            try {
+                const response = await fetch(`../../backend/endpoints/admin/coupons_crud.php`, {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(id ? { ...payload, id } : payload)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    couponModal.hide();
+                    loadCoupons();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Failed to save coupon');
+            }
+        }
+
+        async function deleteCoupon(id) {
+            if (!confirm('Delete this coupon?')) return;
+            
+            try {
+                const response = await fetch(`../../backend/endpoints/admin/coupons_crud.php`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    loadCoupons();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Failed to delete coupon');
+            }
+        }
+
+        async function loadAnalytics() {
+            try {
+                const response = await fetch(`../../backend/endpoints/admin/analytics_sales.php?days=30`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Sales chart
+                    const dates = data.sales_by_date.map(r => r.date);
+                    const revenues = data.sales_by_date.map(r => r.revenue);
+                    
+                    if (window.salesChart) window.salesChart.destroy();
+                    const ctx1 = document.getElementById('salesChart').getContext('2d');
+                    window.salesChart = new Chart(ctx1, {
+                        type: 'line',
+                        data: {
+                            labels: dates,
+                            datasets: [{
+                                label: 'Revenue',
+                                data: revenues,
+                                borderColor: '#667eea',
+                                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: true }
+                    });
+
+                    // Top products chart
+                    const products = data.top_products.map(p => p.title);
+                    const sales = data.top_products.map(p => p.sales);
+                    
+                    if (window.productsChart) window.productsChart.destroy();
+                    const ctx2 = document.getElementById('productsChart').getContext('2d');
+                    window.productsChart = new Chart(ctx2, {
+                        type: 'bar',
+                        data: {
+                            labels: products,
+                            datasets: [{
+                                label: 'Sales',
+                                data: sales,
+                                backgroundColor: '#667eea'
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: true }
+                    });
+
+                    // Category breakdown
+                    let html = '';
+                    data.category_breakdown.forEach(c => {
+                        html += `<tr>
+                            <td>${c.name || 'Uncategorized'}</td>
+                            <td>${c.orders}</td>
+                            <td>$${(c.revenue || 0).toFixed(2)}</td>
+                        </tr>`;
+                    });
+                    document.getElementById('category-breakdown-list').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        function searchProducts() {
+            loadProducts(1);
+        }
+
+        function editProduct(id) {
+            // For now, show alert. In full implementation, fetch product data and populate form
+            alert('Edit product ' + id);
+        }
+    </script>
+</body>
+</html>

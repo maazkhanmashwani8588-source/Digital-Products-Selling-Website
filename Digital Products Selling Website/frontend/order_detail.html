@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Order Detail</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<body class="bg-light"><div class="container py-4"><div id="orderArea"></div></div>
+<script>
+  async function load(){
+    const params = new URLSearchParams(window.location.search); const orderId = params.get('order_id');
+    if(!orderId) { document.getElementById('orderArea').innerHTML = '<div class="alert alert-danger">Missing order id</div>'; return; }
+    const res = await fetch('/backend/endpoints/order_detail.php?order_id='+orderId); if(!res.ok){ document.getElementById('orderArea').innerHTML = '<div class="alert alert-danger">Cannot fetch order</div>'; return; }
+    const json = await res.json(); const o = json.order; const items = json.items;
+    let html = `<h3>Order #${o.id}</h3><p>Status: ${o.status}</p><div class="list-group">`;
+    for(const it of items){ html += `<div class="list-group-item d-flex justify-content-between align-items-center"><div><strong>${it.title}</strong><div class="text-muted">Qty: ${it.quantity}</div></div><div><button class="btn btn-sm btn-primary" onclick="getLink(${o.id},${it.product_id})">Download</button></div></div>` }
+    html += '</div><div id="linkResult" class="mt-3"></div>';
+    document.getElementById('orderArea').innerHTML = html;
+  }
+  async function getLink(orderId, productId){ const res = await fetch('/backend/endpoints/generate_download_link.php?order_id='+orderId+'&product_id='+productId).then(r=>r.json()); if(res.download_url) window.location = res.download_url; else alert(res.error||'Failed'); }
+  load();
+</script></body></html>

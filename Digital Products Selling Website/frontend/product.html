@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Product Detail — Digital Hub</title>
+  <link rel="stylesheet" href="/frontend/css/style.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <header class="container nav"><div class="brand">Digital Hub</div><nav class="row muted"><a href="/frontend/cart.html">Cart</a></nav></header>
+  <main class="container py-4">
+    <div id="productArea"></div>
+  </main>
+
+  <script>
+  async function loadProduct(){
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const slug = params.get('slug');
+    if(!id && !slug){ document.getElementById('productArea').innerHTML = '<div class="alert alert-danger">Missing product identifier</div>'; return; }
+    const url = '/backend/endpoints/product_detail.php?' + (id?('id='+encodeURIComponent(id)):('slug='+encodeURIComponent(slug)));
+    const res = await fetch(url); const json = await res.json();
+    if(!res.ok){ document.getElementById('productArea').innerHTML = '<div class="alert alert-danger">Product not found</div>'; return; }
+    const p = json.product;
+    document.getElementById('productArea').innerHTML = `
+      <div class="row g-4">
+        <div class="col-md-5"><img src="${p.thumbnail||'/frontend/assets/placeholder.png'}" class="img-fluid rounded" alt="${p.title}"></div>
+        <div class="col-md-7">
+          <h1 class="h4">${p.title}</h1>
+          <p class="text-muted">${p.short_description||''}</p>
+          <div class="mb-3"><strong class="text-primary">$${Number(p.sale_price||p.price).toFixed(2)}</strong></div>
+          <div class="mb-3"><button class="btn btn-primary" onclick="(function(){fetch('/backend/endpoints/cart_add.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:${p.id},quantity:1})}).then(r=>r.json()).then(()=>window.location='/frontend/cart.html')})()">Add to cart</button></div>
+          <hr>
+          <div>${p.description}</div>
+        </div>
+      </div>
+      <div class="mt-4"><h5>Related</h5><div class="row g-3">${p.related.map(r=>`<div class="col-6 col-md-3"><div class="card"><img src="${r.thumbnail||'/frontend/assets/placeholder.png'}" class="card-img-top"><div class="card-body"><h6 class="card-title">${r.title}</h6><a class="btn btn-sm btn-outline-primary" href="/frontend/product.html?id=${r.id}">View</a></div></div></div>`).join('')}</div></div>
+    `;
+  }
+  loadProduct();
+  </script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .content {
+      padding: 30px 20px;
+    }
+    .greeting {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #1f2937;
+    }
+    .order-section {
+      background-color: #f9fafb;
+      border-left: 4px solid #7c3aed;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .order-id {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 5px;
+    }
+    .order-total {
+      font-size: 24px;
+      font-weight: 700;
+      color: #06b6d4;
+    }
+    .download-section {
+      margin: 30px 0;
+    }
+    .download-section h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 15px;
+    }
+    .download-link {
+      display: inline-block;
+      background-color: #7c3aed;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-bottom: 10px;
+      margin-right: 10px;
+      font-weight: 500;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+    .download-link:hover {
+      background-color: #6d28d9;
+    }
+    .download-item {
+      margin-bottom: 15px;
+    }
+    .download-item-name {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 5px;
+    }
+    .footer {
+      background-color: #f3f4f6;
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .footer a {
+      color: #7c3aed;
+      text-decoration: none;
+    }
+    .divider {
+      height: 1px;
+      background-color: #e5e7eb;
+      margin: 20px 0;
+    }
+    @media (max-width: 600px) {
+      .container {
+        border-radius: 0;
+      }
+      .header {
+        padding: 20px;
+      }
+      .header h1 {
+        font-size: 24px;
+      }
+      .content {
+        padding: 20px;
+      }
+      .download-link {
+        display: block;
+        text-align: center;
+        margin-right: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Order Confirmed</h1>
+    </div>
+
+    <div class="content">
+      <p class="greeting">Hi <?php echo htmlspecialchars($customer_name); ?>,</p>
+      
+      <p>Thank you for your purchase! Your order has been confirmed and your downloads are ready.</p>
+
+      <div class="order-section">
+        <div class="order-id">Order #<?php echo htmlspecialchars($order_id); ?></div>
+        <div class="order-total">$<?php echo htmlspecialchars($order_total); ?></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="download-section">
+        <h3>📥 Your Downloads</h3>
+        <?php if (is_array($download_links) && count($download_links) > 0): ?>
+          <?php foreach ($download_links as $item): ?>
+            <div class="download-item">
+              <div class="download-item-name"><?php echo htmlspecialchars($item['title']); ?></div>
+              <a href="<?php echo htmlspecialchars($item['url']); ?>" class="download-link">Download File</a>
+            </div>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <p>Your download links are ready in your account.</p>
+        <?php endif; ?>
+      </div>
+
+      <div class="divider"></div>
+
+      <p>Your invoice is attached to this email for your records. You can also access your downloads anytime from your <a href="<?php echo htmlspecialchars(getenv('BASE_URL') ?: 'http://localhost'); ?>/frontend/download_history.html" style="color: #7c3aed; text-decoration: none;">download history</a>.</p>
+
+      <p>If you have any questions, please don't hesitate to <a href="<?php echo htmlspecialchars(getenv('BASE_URL') ?: 'http://localhost'); ?>/frontend/support.html" style="color: #7c3aed; text-decoration: none;">contact us</a>.</p>
+    </div>
+
+    <div class="footer">
+      <p>&copy; <?php echo htmlspecialchars($year); ?> Digital Hub. All rights reserved.</p>
+      <p><a href="<?php echo htmlspecialchars(getenv('BASE_URL') ?: 'http://localhost'); ?>">Visit our site</a></p>
+    </div>
+  </div>
+</body>
+</html>
